@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Alexandria</string>
+
+    <!-- Menu Items -->
+    <string name="books">List of Books</string>
+    <string name="scan">Scan/Add a Book</string>
+    <string name="about">About this App</string>
+
+    <string name="navigation_drawer_open" >Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="action_settings">Settings</string>
+    <string name="scan_button">Scan</string>
+    <string name="input_hint">Insert ISBN-13. Digits only.</string>
+    <string name="book_cover">Bookcover</string>
+
+    <string name="ok_button">Next</string>
+    <string name="cancel_button">Cancel</string>
+    <string name="not_found">No Book found</string>
+    <string name="search">Search</string>
+    <string name="delete">Delete Book</string>
+    <string name="pref_startScreen">Select Startscreen</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="action_share">Share</string>
+    <string name="back_button">go back</string>
+    <string name="share_text">A must read book: </string>
+
+    <string name="about_text">TODOABHI</string>
+    <string name="msg_empty_list">You have no books in you list. Lets get started by adding some books.</string>
+
+    <!-- STATUS_OK -->
+    <string name="msg_ok"></string>
+    <!-- STATUS_ERROR_SERVER_DOWN = 1; -->
+    <string name="msg_error_server_down">AW!! Looks the remote server is not available.\nSorry you had to face this issue.\nPlease try again after some time.</string>
+    <!-- STATUS_ERROR_SERVER_INVALID = 2; -->
+    <string name="msg_error_server_invalid">NUTS!! Looks like the communication protocol has changed.\nPlease update Alexandria and enjoy the upgraded version.</string>
+    <!-- STATUS_UNKNOWN = 3; -->
+    <string name="msg_error_unknown">OMG!! System failure.\nSorry you had to face this issue.\nPlease report the issue and we will try to fix as soon as possible.</string>
+    <!-- STATUS_BXX = 4; -->
+    <string name="msg_no_network">OOPS!! Looks like you are not connected to the internet.\nAlexandria needs internet connectivity to search the information.</string>
+
+    <string name="pref_connectivity_status_key">connectivity-status</string>
+</resources>
