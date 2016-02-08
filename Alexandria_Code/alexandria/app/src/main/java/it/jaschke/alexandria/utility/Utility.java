@@ -34,7 +34,7 @@ public class Utility {
     int getConnectionStatus(Context c){
         SharedPreferences sharedPreferences =  PreferenceManager.getDefaultSharedPreferences(c);
         return sharedPreferences.getInt(c.getString(R.string.pref_connectivity_status_key),
-                BookService.STATUS_UNKNOWN);
+                BookService.STATUS_ERROR_CONNECTION_UNKNOWN);
     }
 
 

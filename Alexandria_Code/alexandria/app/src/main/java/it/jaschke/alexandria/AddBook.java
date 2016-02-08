@@ -3,8 +3,10 @@ package it.jaschke.alexandria;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -30,7 +32,7 @@ import it.jaschke.alexandria.services.DownloadImage;
 import it.jaschke.alexandria.utility.Utility;
 
 
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
     private final int LOADER_ID = 1;
@@ -60,7 +62,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         rootView = inflater.inflate(R.layout.fragment_add_book, container, false);
         ean = (EditText) rootView.findViewById(R.id.ean);
-        handleNetWorkIssue(rootView);
+        checkNetworkConnection();
         ean.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -84,14 +86,13 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                     return;
                 }
 
-                if(!handleNetWorkIssue(rootView)){
-                    //Once we have an ISBN, start a book intent
-                    Intent bookIntent = new Intent(getActivity(), BookService.class);
-                    bookIntent.putExtra(BookService.EAN, ean);
-                    bookIntent.setAction(BookService.FETCH_BOOK);
-                    getActivity().startService(bookIntent);
-                    AddBook.this.restartLoader();
-                }
+                //Once we have an ISBN, start a book intent
+                Intent bookIntent = new Intent(getActivity(), BookService.class);
+                bookIntent.putExtra(BookService.EAN, ean);
+                bookIntent.setAction(BookService.FETCH_BOOK);
+                getActivity().startService(bookIntent);
+                AddBook.this.restartLoader();
+                //}
             }
         });
 
@@ -142,6 +143,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
         return rootView;
     }
+
+
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
         IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
@@ -228,6 +231,12 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.bookCover).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.save_button).setVisibility(View.INVISIBLE);
         rootView.findViewById(R.id.delete_button).setVisibility(View.INVISIBLE);
+        @BookService.ConnectivityStatus int status = Utility.getConnectionStatus(getActivity());
+        if(status==BookService.STATUS_INVALID_ISBN){
+            TextView txtNoNetwork =  (TextView)rootView.findViewById(R.id.msgNoNetwork);
+            txtNoNetwork.setText("");
+            txtNoNetwork.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -236,9 +245,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         activity.setTitle(R.string.scan);
     }
 
-    public boolean handleNetWorkIssue(View objRootView){
+    public boolean displayMessage(){
 
-        TextView txtNoNetwork =  (TextView)objRootView.findViewById(R.id.msgNoNetwork);
+        TextView txtNoNetwork =  (TextView)rootView.findViewById(R.id.msgNoNetwork);
 
         @BookService.ConnectivityStatus int status = Utility.getConnectionStatus(getActivity());
         int message = R.string.msg_ok;
@@ -252,12 +261,14 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             case BookService.STATUS_ERROR_SERVER_INVALID:
                 message = R.string.msg_error_server_invalid;
                 break;
-            case BookService.STATUS_UNKNOWN:
-            case BookService.STATUS_BXX:
+            case BookService.STATUS_ERROR_CONNECTION_UNKNOWN:
                 message = R.string.msg_error_unknown;
                 break;
+            case BookService.STATUS_INVALID_ISBN:
+                message = R.string.msg_invalid_isbn;
+                break;
             default:
-                if (Utility.isNetworkAvailable(getActivity())) {
+                if (!Utility.isNetworkAvailable(getActivity())) {
                     message = R.string.msg_no_network;
                 }
                 break;
@@ -272,4 +283,34 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         return true;
     }
 
+    private void checkNetworkConnection(){
+        TextView txtNoNetwork =  (TextView)rootView.findViewById(R.id.msgNoNetwork);
+        if(!Utility.isNetworkAvailable(getActivity())){
+            txtNoNetwork.setText(R.string.msg_no_network);
+            txtNoNetwork.setVisibility(View.VISIBLE);
+        }else{
+            txtNoNetwork.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void onResume() {
+        SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        objSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        objSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
+        super.onPause();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(key.equals(getString(R.string.pref_connectivity_status_key))){
+            displayMessage();
+        }
+    }
 }

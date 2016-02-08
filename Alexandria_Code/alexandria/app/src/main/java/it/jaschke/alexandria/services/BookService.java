@@ -28,6 +28,7 @@ import java.net.URL;
 import it.jaschke.alexandria.MainActivity;
 import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.data.AlexandriaContract;
+import it.jaschke.alexandria.utility.Utility;
 
 
 /**
@@ -79,6 +80,10 @@ public class BookService extends IntentService {
     private void fetchBook(String ean) {
 
         if(ean.length()!=13){
+            return;
+        }
+        if(!Utility.isNetworkAvailable(getApplicationContext())){
+            setConnectivityStatus(getApplicationContext(), STATUS_ERROR_CONNECTION_NOT_AVAILABLE);
             return;
         }
 
@@ -136,6 +141,10 @@ public class BookService extends IntentService {
                 return;
             }
             bookJsonString = buffer.toString();
+            if(bookJsonString==null || "".equals(bookJsonString)){
+                setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_DOWN);
+                return;
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error ", e);
             setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_DOWN);
@@ -148,7 +157,7 @@ public class BookService extends IntentService {
                     reader.close();
                 } catch (final IOException e) {
                     Log.e(LOG_TAG, "Error closing stream", e);
-                    setConnectivityStatus(getApplicationContext(), STATUS_UNKNOWN);
+                    setConnectivityStatus(getApplicationContext(), STATUS_ERROR_CONNECTION_UNKNOWN);
                 }
             }
 
@@ -172,9 +181,10 @@ public class BookService extends IntentService {
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
             }else{
-                Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
-                messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
+                setConnectivityStatus(getApplicationContext(), STATUS_INVALID_ISBN);
+                //Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
+                //messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
+                //LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(messageIntent);
                 return;
             }
 
@@ -209,6 +219,7 @@ public class BookService extends IntentService {
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
             setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_INVALID);
+            return;
         }
         setConnectivityStatus(getApplicationContext(), STATUS_OK);
     }
@@ -248,12 +259,14 @@ public class BookService extends IntentService {
     public static final int STATUS_OK = 0;
     public static final int STATUS_ERROR_SERVER_DOWN = 1;
     public static final int STATUS_ERROR_SERVER_INVALID = 2;
-    public static final int STATUS_UNKNOWN = 3;
-    public static final int STATUS_BXX = 4;
+    public static final int STATUS_ERROR_CONNECTION_UNKNOWN = 3;
+    public static final int STATUS_ERROR_CONNECTION_NOT_AVAILABLE = 4;
+    public static final int STATUS_INVALID_ISBN = 5;
+
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef({STATUS_OK, STATUS_ERROR_SERVER_DOWN,STATUS_ERROR_SERVER_INVALID,
-            STATUS_UNKNOWN,STATUS_BXX})
+            STATUS_ERROR_CONNECTION_UNKNOWN,STATUS_ERROR_CONNECTION_NOT_AVAILABLE,STATUS_INVALID_ISBN})
     public @interface ConnectivityStatus{};
 
     static private void setConnectivityStatus(Context objContext, @ConnectivityStatus int objConnectivityStatus){
@@ -261,7 +274,7 @@ public class BookService extends IntentService {
         SharedPreferences.Editor objEditor = objSharedPreferences .edit();
         objEditor.putInt(objContext.getString(R.string.pref_connectivity_status_key),
                 objConnectivityStatus);
-        objEditor.apply();
+        //objEditor.apply();
         objEditor.commit();
     }
  }
