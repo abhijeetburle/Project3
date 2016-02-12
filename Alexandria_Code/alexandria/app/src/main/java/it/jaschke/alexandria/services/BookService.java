@@ -38,7 +38,7 @@ import it.jaschke.alexandria.utility.Utility;
  */
 public class BookService extends IntentService {
 
-    private final String LOG_TAG = BookService.class.getSimpleName();
+    private static final String LOG_TAG = BookService.class.getSimpleName();
 
     public static final String FETCH_BOOK = "it.jaschke.alexandria.services.action.FETCH_BOOK";
     public static final String DELETE_BOOK = "it.jaschke.alexandria.services.action.DELETE_BOOK";
@@ -68,6 +68,7 @@ public class BookService extends IntentService {
      * parameters.
      */
     private void deleteBook(String ean) {
+        Log.i(LOG_TAG, "deleteBook ");
         if(ean!=null) {
             getContentResolver().delete(AlexandriaContract.BookEntry.buildBookUri(Long.parseLong(ean)), null, null);
         }
@@ -83,6 +84,7 @@ public class BookService extends IntentService {
             return;
         }
         if(!Utility.isNetworkAvailable(getApplicationContext())){
+            Log.i(LOG_TAG, "fetchBook STATUS_ERROR_CONNECTION_NOT_AVAILABLE");
             setConnectivityStatus(getApplicationContext(), STATUS_ERROR_CONNECTION_NOT_AVAILABLE);
             return;
         }
@@ -125,6 +127,7 @@ public class BookService extends IntentService {
             InputStream inputStream = urlConnection.getInputStream();
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
+                Log.i(LOG_TAG, "fetchBook STATUS_ERROR_SERVER_DOWN");
                 setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_DOWN);
                 return;
             }
@@ -137,17 +140,21 @@ public class BookService extends IntentService {
             }
 
             if (buffer.length() == 0) {
+                Log.i(LOG_TAG, "fetchBook STATUS_ERROR_SERVER_DOWN");
                 setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_DOWN);
                 return;
             }
             bookJsonString = buffer.toString();
             if(bookJsonString==null || "".equals(bookJsonString)){
+                Log.i(LOG_TAG, "fetchBook STATUS_ERROR_SERVER_DOWN");
                 setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_DOWN);
                 return;
             }
         } catch (Exception e) {
             Log.e(LOG_TAG, "Error ", e);
+            Log.i(LOG_TAG, "fetchBook STATUS_ERROR_SERVER_DOWN");
             setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_DOWN);
+            return;
         } finally {
             if (urlConnection != null) {
                 urlConnection.disconnect();
@@ -157,7 +164,9 @@ public class BookService extends IntentService {
                     reader.close();
                 } catch (final IOException e) {
                     Log.e(LOG_TAG, "Error closing stream", e);
+                    Log.i(LOG_TAG, "fetchBook STATUS_ERROR_CONNECTION_UNKNOWN");
                     setConnectivityStatus(getApplicationContext(), STATUS_ERROR_CONNECTION_UNKNOWN);
+                    return;
                 }
             }
 
@@ -181,6 +190,7 @@ public class BookService extends IntentService {
             if(bookJson.has(ITEMS)){
                 bookArray = bookJson.getJSONArray(ITEMS);
             }else{
+                Log.i(LOG_TAG, "fetchBook STATUS_INVALID_ISBN");
                 setConnectivityStatus(getApplicationContext(), STATUS_INVALID_ISBN);
                 //Intent messageIntent = new Intent(MainActivity.MESSAGE_EVENT);
                 //messageIntent.putExtra(MainActivity.MESSAGE_KEY,getResources().getString(R.string.not_found));
@@ -218,10 +228,13 @@ public class BookService extends IntentService {
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, "Error ", e);
+            Log.i(LOG_TAG, "fetchBook STATUS_ERROR_SERVER_INVALID");
             setConnectivityStatus(getApplicationContext(), STATUS_ERROR_SERVER_INVALID);
             return;
         }
+        Log.i(LOG_TAG, "fetchBook STATUS_OK");
         setConnectivityStatus(getApplicationContext(), STATUS_OK);
+        return;
     }
 
     private void writeBackBook(String ean, String title, String subtitle, String desc, String imgUrl) {
@@ -269,12 +282,18 @@ public class BookService extends IntentService {
             STATUS_ERROR_CONNECTION_UNKNOWN,STATUS_ERROR_CONNECTION_NOT_AVAILABLE,STATUS_INVALID_ISBN})
     public @interface ConnectivityStatus{};
 
-    static private void setConnectivityStatus(Context objContext, @ConnectivityStatus int objConnectivityStatus){
+    private void setConnectivityStatus(Context objContext, @ConnectivityStatus int objConnectivityStatus){
         SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(objContext);
+        // Remove the old value
         SharedPreferences.Editor objEditor = objSharedPreferences .edit();
+        objEditor.remove(objContext.getString(R.string.pref_connectivity_status_key));
+        objEditor.commit();
+
+        // Add the new value
+        objEditor = objSharedPreferences .edit();
         objEditor.putInt(objContext.getString(R.string.pref_connectivity_status_key),
                 objConnectivityStatus);
-        //objEditor.apply();
+        Log.i(LOG_TAG, "setConnectivityStatus " + objConnectivityStatus);
         objEditor.commit();
     }
  }

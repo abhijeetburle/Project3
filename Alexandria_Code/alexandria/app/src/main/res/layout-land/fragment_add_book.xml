@@ -38,6 +38,18 @@
             android:layout_toEndOf="@+id/ean"/>
 
         <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/msgNoNetwork"
+            android:text="@string/msg_no_network"
+            android:layout_marginTop="25dp"
+            android:paddingRight="23dp"
+            android:layout_below="@+id/scan_button"
+            android:layout_alignLeft="@+id/ean"
+            android:layout_alignStart="@+id/ean"
+            />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/bookTitle"

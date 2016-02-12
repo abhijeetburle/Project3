@@ -32,7 +32,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
      */
     private CharSequence title;
     public static boolean IS_TABLET = false;
-    private BroadcastReceiver messageReciever;
+    //private BroadcastReceiver messageReciever;
 
     public static final String MESSAGE_EVENT = "MESSAGE_EVENT";
     public static final String MESSAGE_KEY = "MESSAGE_EXTRA";
@@ -47,9 +47,9 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             setContentView(R.layout.activity_main);
         }
 
-        messageReciever = new MessageReciever();
-        IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
-        LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
+        //messageReciever = new MessageReciever();
+        //IntentFilter filter = new IntentFilter(MESSAGE_EVENT);
+        //LocalBroadcastManager.getInstance(this).registerReceiver(messageReciever,filter);
 
         navigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
@@ -128,7 +128,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     @Override
     protected void onDestroy() {
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReciever);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(messageReciever);
         super.onDestroy();
     }
 
@@ -151,6 +151,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
 
     }
 
+    /*
     private class MessageReciever extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -159,6 +160,7 @@ public class MainActivity extends ActionBarActivity implements NavigationDrawerF
             }
         }
     }
+    */
 
     public void goBack(View view){
         getSupportFragmentManager().popBackStack();

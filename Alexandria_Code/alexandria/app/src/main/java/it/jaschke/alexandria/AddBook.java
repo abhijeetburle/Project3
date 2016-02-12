@@ -12,6 +12,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,7 +33,8 @@ import it.jaschke.alexandria.services.DownloadImage;
 import it.jaschke.alexandria.utility.Utility;
 
 
-public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,SharedPreferences.OnSharedPreferenceChangeListener {
+public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
+        SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
     private EditText ean;
     private final int LOADER_ID = 1;
@@ -92,7 +94,6 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 bookIntent.setAction(BookService.FETCH_BOOK);
                 getActivity().startService(bookIntent);
                 AddBook.this.restartLoader();
-                //}
             }
         });
 
@@ -198,17 +199,17 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         String authors = data.getString(data.getColumnIndex(AlexandriaContract.AuthorEntry.AUTHOR));
         String[] authorsArr = authors.split(",");
         ((TextView) rootView.findViewById(R.id.authors)).setLines(authorsArr.length);
-        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",","\n"));
+        ((TextView) rootView.findViewById(R.id.authors)).setText(authors.replace(",", "\n"));
         ImageView imgBookCover = (ImageView)rootView.findViewById(R.id.bookCover);
-        if(Utility.isNetworkAvailable(getActivity())) {
-            String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
-            if (Patterns.WEB_URL.matcher(imgUrl).matches()) {
+        String imgUrl = data.getString(data.getColumnIndex(AlexandriaContract.BookEntry.IMAGE_URL));
+        if (Patterns.WEB_URL.matcher(imgUrl).matches()) {
+            if (Utility.isNetworkAvailable(getActivity())) {
                 new DownloadImage(imgBookCover).execute(imgUrl);
                 imgBookCover.setVisibility(View.VISIBLE);
+            } else {
+                imgBookCover.setImageResource(R.drawable.noimage);
+                imgBookCover.setVisibility(View.VISIBLE);
             }
-        } else {
-            imgBookCover.setImageResource(R.drawable.noimage);
-            imgBookCover.setVisibility(View.VISIBLE);
         }
 
         String categories = data.getString(data.getColumnIndex(AlexandriaContract.CategoryEntry.CATEGORY));
@@ -236,6 +237,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             TextView txtNoNetwork =  (TextView)rootView.findViewById(R.id.msgNoNetwork);
             txtNoNetwork.setText("");
             txtNoNetwork.setVisibility(View.GONE);
+            Log.i(TAG, "clearFields GONE");
         }
     }
 
@@ -274,10 +276,12 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
                 break;
         }
         if (message == R.string.msg_ok) {
+            Log.i(TAG, "displayMessage _ok");
             txtNoNetwork.setVisibility(View.GONE);
             return false;
         }
 
+        Log.i(TAG, "displayMessage "+message);
          txtNoNetwork.setText(message);
          txtNoNetwork.setVisibility(View.VISIBLE);
         return true;
@@ -285,32 +289,52 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
     private void checkNetworkConnection(){
         TextView txtNoNetwork =  (TextView)rootView.findViewById(R.id.msgNoNetwork);
-        if(!Utility.isNetworkAvailable(getActivity())){
+        if (!Utility.isNetworkAvailable(getActivity())) {
+            Log.i(TAG, "checkNetworkConnection msgNoNetwork");
             txtNoNetwork.setText(R.string.msg_no_network);
             txtNoNetwork.setVisibility(View.VISIBLE);
-        }else{
+        } else {
+            Log.i(TAG, "checkNetworkConnection GONE");
             txtNoNetwork.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onResume() {
+        super.onResume();
         SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         objSharedPreferences.registerOnSharedPreferenceChangeListener(this);
-        super.onResume();
     }
 
     @Override
     public void onPause() {
-        SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
-        objSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
         super.onPause();
+        SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        Log.i(TAG, "onPause [" + objSharedPreferences +"]");
+        Log.i(TAG, "onPause -[" + objSharedPreferences.getAll()+"]");
+        objSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.i(TAG, "onSharedPreferenceChanged ["+sharedPreferences+"]");
         if(key.equals(getString(R.string.pref_connectivity_status_key))){
             displayMessage();
         }
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        objSharedPreferences.registerOnSharedPreferenceChangeListener(this);
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        SharedPreferences objSharedPreferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        objSharedPreferences.unregisterOnSharedPreferenceChangeListener(this);
     }
 }

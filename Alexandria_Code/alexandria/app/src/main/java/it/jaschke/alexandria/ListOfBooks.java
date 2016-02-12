@@ -78,6 +78,7 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
             }
         });
 
+        handleEmpty(rootView);
         return rootView;
     }
 
@@ -119,7 +120,7 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
         if (position != ListView.INVALID_POSITION) {
             bookList.smoothScrollToPosition(position);
         }
-        handleEmpty();
+        handleEmpty(getView());
     }
 
     @Override
@@ -133,10 +134,10 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
         activity.setTitle(R.string.books);
     }
 
-    public void handleEmpty(){
-        TextView txtEmptyList =  (TextView)getView().findViewById(R.id.msgEmptyList);
-        if(bookListAdapter.getCount()>0){
-            txtEmptyList.setText(R.string.msg_no_network);
+    public void handleEmpty(View rootView){
+        TextView txtEmptyList =  (TextView)rootView.findViewById(R.id.msgEmptyList);
+        if(bookListAdapter.getCount()<0){
+            txtEmptyList.setText(R.string.msg_empty_list);
             txtEmptyList.setVisibility(View.VISIBLE);
         }else{
             txtEmptyList.setVisibility(View.GONE );
