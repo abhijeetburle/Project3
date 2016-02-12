@@ -31,6 +31,7 @@ import it.jaschke.alexandria.data.AlexandriaContract;
 import it.jaschke.alexandria.services.BookService;
 import it.jaschke.alexandria.services.DownloadImage;
 import it.jaschke.alexandria.utility.Utility;
+import me.dm7.barcodescanner.zbar.ZBarScannerView;
 
 
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
@@ -100,8 +101,9 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         rootView.findViewById(R.id.scan_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                IntentIntegrator scanIntegrator = new IntentIntegrator(getActivity());
-                scanIntegrator.initiateScan();
+
+                Intent intent = new Intent(v.getContext(), BarcodeScanner.class);
+                startActivity(intent);
             }
 
             public void onActivityResult(int requestCode, int resultCode, Intent intent) {
