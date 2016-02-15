@@ -1,7 +1,7 @@
 package it.jaschke.alexandria;
 
 import android.app.Activity;
-import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -30,8 +30,10 @@ public class BarcodeScanner extends Activity {
     private Camera mCamera;
     private CameraPreview mPreview;
     private Handler autoFocusHandler;
+    private String mScanResult="";
 
-    private Button scanButton;
+    /* For Debug */
+    //private Button scanButton;
     private ImageScanner scanner;
 
     private boolean barcodeScanned = false;
@@ -60,19 +62,19 @@ public class BarcodeScanner extends Activity {
         FrameLayout preview = (FrameLayout) findViewById(R.id.cameraPreview);
         preview.addView(mPreview);
 
+        /* For Debug */
+        /*
         scanButton = (Button) findViewById(R.id.ScanButton);
 
         scanButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (barcodeScanned) {
-                    barcodeScanned = false;
-                    mCamera.setPreviewCallback(previewCb);
-                    mCamera.startPreview();
-                    previewing = true;
-                    mCamera.autoFocus(autoFocusCB);
-                }
+                Intent intent = new Intent();
+                intent.putExtra("SCANRESULT", mScanResult);
+                setResult(1888, intent);
+                finish();//finishing activity
             }
         });
+        */
     }
 
 
@@ -133,13 +135,19 @@ public class BarcodeScanner extends Activity {
 
                     Log.i("<<<<<<Asset Code>>>>> ",
                             "<<<<Bar Code>>> " + sym.getData());
-                    String scanResult = sym.getData().trim();
+                    mScanResult = sym.getData().trim();
 
-                    showAlertDialog(scanResult);
+                    //showAlertDialog(mScanResult);
 
                     barcodeScanned = true;
 
                     break;
+                }
+                if(barcodeScanned){
+                    Intent intent = new Intent();
+                    intent.putExtra(AddBook.SCAN_RESULT , mScanResult);
+                    setResult(AddBook.SCAN_RESULT_CODE, intent);
+                    finish();//finishing activity
                 }
             }
         }

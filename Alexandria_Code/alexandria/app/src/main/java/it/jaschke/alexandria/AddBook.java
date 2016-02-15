@@ -37,6 +37,9 @@ import me.dm7.barcodescanner.zbar.ZBarScannerView;
 public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SharedPreferences.OnSharedPreferenceChangeListener {
     private static final String TAG = "INTENT_TO_SCAN_ACTIVITY";
+    public static final String SCAN_RESULT = "SCANRESULT";
+    public static final int SCAN_RESULT_CODE = 1888;
+
     private EditText ean;
     private final int LOADER_ID = 1;
     private View rootView;
@@ -103,16 +106,19 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
             public void onClick(View v) {
 
                 Intent intent = new Intent(v.getContext(), BarcodeScanner.class);
-                startActivity(intent);
+                //startActivity(intent);
+                startActivityForResult(intent, 1888);
             }
 
             public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-                IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-                if (scanningResult != null) {
-                    String scanContent = scanningResult.getContents();
+
+               //IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
+                if (requestCode == SCAN_RESULT_CODE) {
+                    String scanContent = intent.getStringExtra(SCAN_RESULT);
                     Toast toast = Toast.makeText(getActivity(),
                             "[" + scanContent + "]", Toast.LENGTH_SHORT);
                     toast.show();
+                    ean.setText(scanContent);
                 } else {
                     Toast toast = Toast.makeText(getActivity(),
                             "No scan data received!", Toast.LENGTH_SHORT);
@@ -150,13 +156,17 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
 
     public void onActivityResult(int requestCode, int resultCode, Intent intent) {
-        IntentResult scanningResult = IntentIntegrator.parseActivityResult(requestCode, resultCode, intent);
-        if (scanningResult != null) {
-            String scanContent = scanningResult.getContents();
+        super.onActivityResult(requestCode,resultCode,intent);
+        String scanContent=null;
+        if (requestCode == SCAN_RESULT_CODE && intent!=null) {
+            scanContent= intent.getStringExtra(SCAN_RESULT);
+        }
+        if(scanContent!=null&&!"".equals(scanContent)) {
             Toast toast = Toast.makeText(getActivity(),
-                    "["+scanContent+"]", Toast.LENGTH_SHORT);
+                    "[" + scanContent + "]", Toast.LENGTH_SHORT);
             toast.show();
-        }else{
+            ean.setText(scanContent);
+        }else {
             Toast toast = Toast.makeText(getActivity(),
                     "No scan data received!", Toast.LENGTH_SHORT);
             toast.show();
