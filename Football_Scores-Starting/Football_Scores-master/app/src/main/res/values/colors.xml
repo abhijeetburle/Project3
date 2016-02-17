@@ -76,5 +76,15 @@
     <color name="red13">#FFCACA</color>
     <color name="red14">#FFE4E4</color>
 
+    <color name="white">#FFFFFF</color>
+    <color name="grey">#cccccc</color>
+    <color name="grey_700">#646464</color>
+    <color name="black">#000000</color>
+
+    <color name="cyan100">#B2EBF2</color>
+    <color name="cyan500">#00BCD4</color>
+    <color name="cyan700">#0097A7</color>
+    <color name="cyan900">#006064</color>
+
 
 </resources>
