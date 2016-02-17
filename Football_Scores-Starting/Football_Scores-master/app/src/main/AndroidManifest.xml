@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="barqsoft.footballscores" >
 
+    <permission android:name="barqsoft.footballscores.PERMISSION" />
+
+    <uses-permission android:name="barqsoft.footballscores.PERMISSION" />
     <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
@@ -23,7 +26,11 @@
         <provider
             android:name=".ScoresProvider"
             android:authorities="barqsoft.footballscores"
-            android:exported="true"/>
+            android:readPermission="barqsoft.footballscores.PERMISSION"
+            android:writePermission="barqsoft.footballscores.PERMISSION"
+            android:exported="false"
+            android:grantUriPermissions="true"
+            />
 
         <activity
             android:name=".AboutActivity"
@@ -47,7 +54,6 @@
 
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="com.color.appwidget.list.UPDATE_LIST" />
             </intent-filter>
 
             <meta-data

@@ -26,7 +26,6 @@ import barqsoft.footballscores.Utilities;
 /**
  * Created by abhijeet.burle on 2016/02/17.
  */
-@TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class ListWidgetProvider  implements RemoteViewsFactory {
     private final static String TAG = ListWidgetProvider.class.getSimpleName();
 
@@ -56,7 +55,6 @@ public class ListWidgetProvider  implements RemoteViewsFactory {
         return null;
     }
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     public RemoteViews getViewAt(int position) {
         Log.i(TAG, "getViewAt: position="+position);
@@ -73,8 +71,6 @@ public class ListWidgetProvider  implements RemoteViewsFactory {
         int homeScore =  cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresTable.HOME_GOALS_COL));
         String awayTeam = cursor.getString(cursor.getColumnIndex(DatabaseContract.ScoresTable.AWAY_COL));
         int awayScore =  cursor.getInt(cursor.getColumnIndex(DatabaseContract.ScoresTable.AWAY_GOALS_COL));
-        //String vs = mContext.getResources().getString(R.string.vs);
-        //String colon = mContext.getResources().getString(R.string.colon);
         String vs = "vs";
         String colon = ":";
         String gameInfo = homeTeam + " " + vs + " " + awayTeam;
@@ -117,23 +113,21 @@ public class ListWidgetProvider  implements RemoteViewsFactory {
         Log.v(TAG, "onDataSetChanged");
         if (cursor != null) {
             cursor.close();
-
+        }
             final long token = Binder.clearCallingIdentity();
             try {
                 Log.v(TAG, "--> QUERY FOR WIDGET DATA <--");
                 Uri scoreUriForDate = DatabaseContract.ScoresTable.buildScoreWithDate();
                 Log.v(TAG, "scoreUriForDate=" + scoreUriForDate);
                 long timeToday = System.currentTimeMillis();
-                long timeYesterday = timeToday - TimeUnit.MILLISECONDS.convert(1, TimeUnit.DAYS);
-                Date yesterday = new Date(timeYesterday);
                 Locale locale = mContext.getResources().getConfiguration().locale;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", locale);
                 String[] queryForDate = new String[1];
-                queryForDate[0] = dateFormat.format(yesterday);
+                queryForDate[0] = dateFormat.format(timeToday);
                 cursor = mContext.getContentResolver()
                         .query(scoreUriForDate,
                                 DatabaseContract.ScoresTable.getScoresTableColumnsForWidget(),
-                                DatabaseContract.ScoresTable.getPathDate(),
+                                "date",
                                 queryForDate,
                                 null
                         );
@@ -141,7 +135,7 @@ public class ListWidgetProvider  implements RemoteViewsFactory {
             } finally {
                 Binder.restoreCallingIdentity(token);
             }
-        }
+
     }
 
     @Override

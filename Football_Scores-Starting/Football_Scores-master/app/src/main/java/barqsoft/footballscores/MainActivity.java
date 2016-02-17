@@ -10,21 +10,36 @@ import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
 {
+    public static final String TAG = MainActivity.class.getSimpleName();
     public static int selected_match_id;
     public static int current_fragment = 2;
-    public static String LOG_TAG = "MainActivity";
     private final String save_tag = "Save Test";
     private PagerFragment my_main;
+    public static int sSelectedMatchId = 0;
+    public static int sCurrentFragment = 2;
+    public static boolean sOpenSelectedMatchId = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Log.d(LOG_TAG, "Reached MainActivity onCreate");
+        Log.d(TAG, "Reached MainActivity onCreate");
         if (savedInstanceState == null) {
             my_main = new PagerFragment();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.container, my_main)
                     .commit();
+        }
+
+        // check if a widget list item was clicked..
+        sOpenSelectedMatchId = false;
+        if (getIntent().getExtras() != null) {
+            String widgetClickItem = getIntent().getExtras().getString("OPEN_SELECTED_GAME");
+            if (widgetClickItem != null) {
+                Log.v(TAG, "--> OPEN_SELECTED_GAME: " + widgetClickItem);
+                sSelectedMatchId = Integer.valueOf(widgetClickItem);
+                sCurrentFragment = 1; // yesterday
+                sOpenSelectedMatchId = true;
+            }
         }
     }
 

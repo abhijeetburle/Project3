@@ -24,6 +24,7 @@ import java.util.Vector;
 
 import barqsoft.footballscores.BuildConfig;
 import barqsoft.footballscores.DatabaseContract;
+import barqsoft.footballscores.GlobalConstants;
 import barqsoft.footballscores.R;
 
 /**
@@ -134,22 +135,6 @@ public class myFetchService extends IntentService
     }
     private void processJSONdata (String JSONdata,Context mContext, boolean isReal)
     {
-        //JSON data
-        // This set of league codes is for the 2015/2016 season. In fall of 2016, they will need to
-        // be updated. Feel free to use the codes
-        final String BUNDESLIGA1 = "394";
-        final String BUNDESLIGA2 = "395";
-        final String LIGUE1 = "396";
-        final String LIGUE2 = "397";
-        final String PREMIER_LEAGUE = "398";
-        final String PRIMERA_DIVISION = "399";
-        final String SEGUNDA_DIVISION = "400";
-        final String SERIE_A = "401";
-        final String PRIMERA_LIGA = "402";
-        final String Bundesliga3 = "403";
-        final String EREDIVISIE = "404";
-
-
         final String SEASON_LINK = "http://api.football-data.org/alpha/soccerseasons/";
         final String MATCH_LINK = "http://api.football-data.org/alpha/fixtures/";
         final String FIXTURES = "fixtures";
@@ -193,11 +178,23 @@ public class myFetchService extends IntentService
                 //add leagues here in order to have them be added to the DB.
                 // If you are finding no data in the app, check that this contains all the leagues.
                 // If it doesn't, that can cause an empty DB, bypassing the dummy data routine.
-                if(     League.equals(PREMIER_LEAGUE)      ||
-                        League.equals(SERIE_A)             ||
-                        League.equals(BUNDESLIGA1)         ||
-                        League.equals(BUNDESLIGA2)         ||
-                        League.equals(PRIMERA_DIVISION)     )
+                if (League.equals(String.valueOf(GlobalConstants.League.SERIE_A)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.PREMIER_LEGAUE)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.CHAMPIONS_LEAGUE)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.PRIMERA_DIVISION)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.BUNDESLIGA)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.BUNDESLIGA1)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.BUNDESLIGA2)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.LIGUE1)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.LIGUE2)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.PREMIER_LEAGUE)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.PRIMERA_DIVISION1)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.PRIMERA_DIVISION)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.SEGUNDA_DIVISION)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.SERIE_A1)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.PRIMERA_LIGA)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.BUNDESLIGA3)) ||
+                        League.equals(String.valueOf(GlobalConstants.League.EREDIVISIE)))
                 {
                     match_id = match_data.getJSONObject(LINKS).getJSONObject(SELF).
                             getString("href");
@@ -220,7 +217,7 @@ public class myFetchService extends IntentService
                         mTime = mDate.substring(mDate.indexOf(":") + 1);
                         mDate = mDate.substring(0,mDate.indexOf(":"));
 
-                        if(!isReal){
+                        if(isReal){
                             //This if statement changes the dummy data's date to match our current date range.
                             Date fragmentdate = new Date(System.currentTimeMillis()+((i-2)*86400000));
                             SimpleDateFormat mformat = new SimpleDateFormat("yyyy-MM-dd");

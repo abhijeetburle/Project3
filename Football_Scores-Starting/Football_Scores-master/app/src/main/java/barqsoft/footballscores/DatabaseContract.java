@@ -10,7 +10,6 @@ import android.provider.BaseColumns;
 public class DatabaseContract
 {
     public static final String SCORES_TABLE = "ScoresTable";
-    private static final String PATH_DATE = "date";
 
     public static final class ScoresTable implements BaseColumns
     {
@@ -57,11 +56,6 @@ public class DatabaseContract
                     LEAGUE_COL
             };
         }
-        public static String getPathDate() {
-            return PATH_DATE;
-        }
-
-
     }
     //URI data
     public static final String CONTENT_AUTHORITY = "barqsoft.footballscores";

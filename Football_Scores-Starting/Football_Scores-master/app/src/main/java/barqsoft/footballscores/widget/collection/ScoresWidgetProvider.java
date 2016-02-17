@@ -21,13 +21,14 @@ import barqsoft.footballscores.widget.service.ListWidgetService;
 /**
  * Created by abhijeet.burle on 2016/02/17.
  */
+
+
 public class ScoresWidgetProvider extends AppWidgetProvider {
     private final static String TAG = ScoresWidgetProvider.class.getSimpleName();
 
     public static final String ACTION_WIDGET_ITEM_CLICK = "barqsoft.footballscores.ACTION_WIDGET_ITEM_CLICK";
     public static final String EXTRA_STRING = "barqsoft.footballscores.EXTRA_STRING";
 
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     @Override
     @SuppressWarnings("deprecation")
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
