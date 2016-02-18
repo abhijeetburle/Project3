@@ -1,8 +1,0 @@
-<resources>
-
-    <!-- Settings activity theme. -->
-    <style name="AppTheme" parent="@android:style/Theme.Material.Light.DarkActionBar">
-        <item name="android:colorPrimary">@color/cyan500</item>
-        <item name="android:colorPrimaryDark">@color/cyan900</item>
-    </style>
-</resources>

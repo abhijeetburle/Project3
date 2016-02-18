@@ -24,6 +24,7 @@
     <string name="action_share">Share</string>
     <string name="back_button">go back</string>
     <string name="share_text">A must read book: </string>
+    <string name="author_unkown"></string>
 
     <string name="about_text">TODOABHI</string>
     <string name="msg_empty_list">You have no books in you list. Lets get started by adding some books.</string>
